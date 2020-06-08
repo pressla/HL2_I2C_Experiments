@@ -22,7 +22,7 @@ void loop() {
 // this function is registered as an event, see setup()
 
 void receiveEvent(int howMany) {
-  Serial.println(howMany);
+  //Serial.println(howMany);
   Serial.println("--");
   byte c[10];
   int i= 0;
@@ -30,8 +30,7 @@ void receiveEvent(int howMany) {
     c[i] = Wire.read(); // receive byte as a character
     i++;
   }
-  Serial.println(c[1]);         // print the character
-  
+ 
   Serial.print("BUS DATA:");
   Serial.println(c[1]);         // write to usb monitor
 
@@ -55,25 +54,10 @@ void receiveEvent(int howMany) {
       break;
       
     default:
-      Band=255; 
+      Band=255; // equals 4.5V or so
   }
   Serial.print("BAND:");
   Serial.println(Band);         // write to usb monitor
 
-  analogWrite(outpin, Band);
-}
-
-
-char* b2s(byte myByte){
- char Str[8];
- byte mask = B10000000;
- for(int i = 0; i<8; i++){
-   Str[i]='0';
-   if(((mask >> i) & myByte) == (mask>>i)){
-     Str[i]='1';
-   }
- }
- // terminate the string with the null character
- Str[8] = '\0';
- return Str;
+  analogWrite(outpin, Band);    //analog value to amp
 }
