@@ -8,9 +8,10 @@ int outpin = 6;  //possible: 3,5,6,9
 //SCL pin A5
 
 void setup() {
-  Wire.begin(0x20);                // join i2c bus with address #8
-  Wire.onReceive(receiveEvent); // register event
-  Serial.begin(19200);           // start serial for output
+  Wire.begin(0x20);                 // join i2c bus with address to listen
+  Wire.onReceive(receiveEvent);     // register event
+  Serial.begin(115200);             // start serial for output
+  Serial.println("Hello HL2 I2C");
 }
 
 void loop() {
@@ -21,35 +22,58 @@ void loop() {
 // this function is registered as an event, see setup()
 
 void receiveEvent(int howMany) {
-  while (1 < Wire.available()) { // loop through all but the last
-    char c = Wire.read(); // receive byte as a character
-    Serial.print(c);         // print the character
+  Serial.println(howMany);
+  Serial.println("--");
+  byte c[10];
+  int i= 0;
+  while (0 < Wire.available()) { // loop through all but the last
+    c[i] = Wire.read(); // receive byte as a character
+    i++;
   }
-  int x = Wire.read();    // receive byte as an integer
+  Serial.println(c[1]);         // print the character
   
-  Serial.println(x);         // write to usb monitor
+  Serial.print("BUS DATA:");
+  Serial.println(c[1]);         // write to usb monitor
 
   int Band = 0; //80m Band
 
-  switch (x) {
-    case 1:     //4MHz
+  switch (c[1]) {
+    case 0x1:     //2MHz
       Band = 0;
       break;
-    case 2:     //7Mhz
+    case 0x2:     //4Mhz
       Band = 65;
       break;
-    case 3:     //14MHz
+    case 0x4:     //7MHz
       Band = 127;
       break;
-    case 4:     //21MHz
+    case 0x8:     //14MHz
       Band = 188;
       break;
-    case 5:     //30MHz
-      Band = 255;
+    case 0x10:     //21MHz
+      Band = 222;
       break;
       
     default:
       Band=255; 
   }
+  Serial.print("BAND:");
+  Serial.println(Band);         // write to usb monitor
+
   analogWrite(outpin, Band);
+}
+
+
+char* b2s(byte myByte){
+ char Str[8];
+ byte mask = B10000000;
+ for(int i = 0; i<8; i++){
+   Str[i]='0';
+   if(((mask >> i) & myByte) == (mask>>i)){
+     Str[i]='1';
+   }
+ }
+ // terminate the string with the null character
+ Str[8] = '\0';
+ return Str;
 }
